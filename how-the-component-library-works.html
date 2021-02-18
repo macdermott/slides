@@ -1,0 +1,269 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h2>The Design System Component Library Technical Overview</h2>
+				<small>AKA why do the devs keep talking about npm</small>
+			</section>
+			<section>
+				<p>A design system really shines when you can take the designs and turning them into components</p>
+				<p>Many design systems use React. But why? And what is React anyway?</p>
+			</section>
+			<section>
+				<section>
+					<h2>What is React?</h2>
+					<p>React is an open source JavaScript framework used specifically to allow front-end developers to
+						create reusable components.</p>
+					<p>Created by Facebook in 2013, it has gained popularity in recent
+						years and is the underlying technology running the front end of Facebook, Instagram, Netflix and
+						many other heavily used websites</p>
+				</section>
+				<section>
+					<h2>Why use React for the design library?</h2>
+					<small>React is a perfect fit for a design library - Each component created in a design system will
+						map
+						to a React component</small>
+					<div>
+						<span>
+							<div>
+								<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers>
+									import React from 'react';
+			
+									function Button(props) {			
+									  return (
+										<button className=...>
+											<span>
+												{props.name}
+												<i>{props.icon}</i>
+											</span>
+									  	</button>
+									  );
+									}
+								</code></pre>
+							</div>
+						</span>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Why do people keep talking about "npm" and "packages"?</h2>
+				</section>
+				<section id="fragments">
+					<p>
+						The React components all live together in one Github repository (I'll talk about Github later)
+					</p>
+					<p class="fragment">
+						To be able to reuse these components elsewhere, we need to bundle them up into a package (or
+						library). The most popular tool to do this is a JavaScript package manager called
+						<strong>npm</strong>
+					</p>
+				</section>
+				<section id="fragments">
+					<p>Developers can use npm to do a number of things, including</p>
+					<ul>
+						<li class="fragment">packaging</li>
+						<li class="fragment">testing</li>
+						<li class="fragment">linting (checking the code for errors and make sure it looks looks nice)
+						</li>
+					</ul>
+				</section>
+				<section data-auto-animate>
+					<small>npm is also used to keep track of dependencies. For example, this is how we tell
+						the component library that we want to use React. Details of these dependencies are stored in
+						package.json</small>
+					<pre data-id="code-animation"><code class="hljson" data-trim data-line-numbers="2|4|23|9"><script type="text/template">
+						{
+						  "name": "@britishredcrosssociety/design-system-component-library",
+							"homepage": "/design-system-component-library",
+							"version": "1.0.0",
+							"description": "Design System Component Library built using React",
+							"devDependencies": {
+								"babel-eslint": "^10.0.3",
+								"cross-env": "^7.0.2",
+								"eslint": "^6.8.0",
+								"eslint-config-prettier": "^6.7.0",
+								"eslint-config-standard": "^14.1.0",
+								"eslint-config-standard-react": "^9.2.0",
+								"eslint-plugin-import": "^2.18.2",
+								"eslint-plugin-node": "^11.0.0",
+								"eslint-plugin-prettier": "^3.1.1",
+								"eslint-plugin-promise": "^4.2.1",
+								"eslint-plugin-react": "^7.17.0",
+								"eslint-plugin-standard": "^4.0.1",
+								"gh-pages": "^2.2.0",
+								"microbundle-crl": "^0.13.10",
+								"npm-run-all": "^4.1.5",
+								"prettier": "^2.0.4",
+								"react": "^16.13.1",
+								"react-dom": "^16.13.1",
+								"react-scripts": "^3.4.1",
+								"rollup-plugin-stylelint": "^1.0.0",
+								"stylelint": "^13.10.0",
+								"stylelint-scss": "^3.19.0"
+							},
+							}
+
+						</script></code></pre>
+				</section>
+				<section id="fragments">
+					<p>We can also use npm to create a reusable <strong>npm package</strong>. This will take
+						all of the React
+						components and bundle them up into a single reusable package.</p>
+					<p class="fragment">Once the npm package has been created, we can copy it to any website and use
+						these React components.</p>
+					<p class="fragment">So when does the npm package get created?...</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>So where does Github come into all of this?</h2>
+					<p>Github is used to store the React component code <strong>and (crucially)</strong> to build a new
+						npm package
+						every time something changes</p>
+				</section>
+				<section data-auto-animate>
+					<small>When someone makes a change to the React components, Github Actions springs into
+						action!</small>
+					<pre data-id="code-animation"><code class="hlyaml" data-trim data-line-numbers="|6-9|23|29|30|32|27"><script type="text/template">
+						name: CI
+
+						# Controls when the action will run. 
+						on:
+						# Triggers the workflow on push or pull request events but only for the main branch
+						push:
+							branches: [ main ]
+						pull_request:
+							branches: [ main ]
+
+						# Allows you to run this workflow manually from the Actions tab
+						workflow_dispatch:
+
+						# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+						jobs:
+						# This workflow contains a single job called "build"
+						build:
+							# The type of runner that the job will run on
+							runs-on: ubuntu-latest
+
+							# Steps represent a sequence of tasks that will be executed as part of the job
+							steps:
+							- uses: actions/checkout@v2
+							- uses: actions/setup-node@v2
+								with:
+								node-version: '12.x'
+								registry-url: 'https://npm.pkg.github.com'
+								# Defaults to the user or organization that owns the workflow file
+							- run: npm install
+							- run: npm test
+							- run: npm version prerelease
+							- run: npm publish
+					</script></code></pre>
+				</section>
+				<section>
+					<p>Once Github Actions has finished creating a package, it's ready to be reused. So what now?</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Using a React component library</h2>
+					<p>Remember the package.json file that defines it's dependencies? That's how we use the component
+						library!</p>
+					<p>Once you have included the component library, you can use the React components in your website
+					</p>
+				</section>
+				<section>
+					<p>What does a React website look like?</p>
+					<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="1|3-6|9|10-14|15-18|16|17"><script type="text/template">
+						import React from "react";
+
+						import Page from "../components/Page";
+						import Hero from "../components/Hero";
+						import RelatedLinks from "../components/RelatedLinks";
+						import RelatedLink from "../components/RelatedLink";
+
+						export default () => (
+						<Page title="Home">
+							<Hero
+								title="UK coronavirus appeal 2021."
+								subtitle="Together, we can make sure no one is left behind."
+								image="person-helping.jpg">
+							</Hero>
+							<RelatedLinks>
+								<RelatedLink title="Donate" image="bucket.jpg"/>
+								<RelatedLink title="Volunteer" image="volunteer.jpg"/>
+							</RelatedLinks>
+						</Page>
+						);
+						</script></code></pre>
+				</section>
+				<section>
+					<p>When you visit the previous page, the server translates each React component into the related
+						HTML, substituting the attributes where appropriate</p>
+					<p>However, the previous example is also hardcoded - someone has created the page by hand. How do we
+						connect this to a CMS?</p>
+				</section>
+			</section>
+			<section>
+				<section id="fragments">
+					<h2>Headless vs Static site</h2>
+					<p>There are two ways to use React with a CMS</p>
+					<p class="fragment">Headless relies on a React website making API calls to a CMS to get the relevant
+						data to build
+						content</p>
+					<p class="fragment">Static uses the React components and CMS content to build a static HTML site</p>
+					<h3 class="fragment">Enough words Ged, I need to see some diagrams</h3>
+				</section>
+				<section>
+					<img src="assets/images/Static.png" />
+					<small>A static site generator (such as Gatsby) takes the React components and content in a CMS and
+						generates a static site</small>
+				</section>
+				<section>
+					<img src="assets/images/Headless.png" />
+					<small>A React app is hosted separately to the CMS. When a user browses the React app website, React
+						dynamically makes calls to the CMS to retrieve the relevant content</small>
+				</section>
+				<section id="fragments">
+					<h2>So which is better? Headless or Static?</h2>
+					<p class="fragment">That depends!</p>
+				</section>
+			</section>
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
